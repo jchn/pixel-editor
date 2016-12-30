@@ -7,26 +7,27 @@ import { actions as storeActions } from '../redux/modules/store'
 const mapStateToProps = (state) => {
   return {
     pixels: values(state.store.layers.byId).map(layer => layer.pixels).reduce((a, b) => a.concat(b), []),
-    currentLayerId: state.layers.selectedLayerId
+    currentLayerId: state.layers.selectedLayerId,
+    currentColor: state.colors.currentColor
   }
 }
 
 const mapDispatchToProps = (dispatch) => {
   return {
-    draw: (layerId) => (pixelIndex) => dispatch(storeActions.drawPixel({ color: 'red', layerId, index: pixelIndex }))
+    draw: (layerId, color) => (pixelIndex) => dispatch(storeActions.drawPixel({ color, layerId, index: pixelIndex }))
   }
 }
 
 class CanvasContainer extends Component {
   render () {
-    const { pixels, draw, currentLayerId, ...props } = this.props
+    const { pixels, draw, currentLayerId, currentColor, ...props } = this.props
     return (
       <Canvas
         width={16}
         height={16}
         scale={32}
         pixels={pixels}
-        interact={draw(currentLayerId)}
+        interact={draw(currentLayerId, currentColor)}
         {...props} />
     )
   }

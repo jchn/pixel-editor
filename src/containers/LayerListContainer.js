@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import LayerList from '../components/LayerList'
+import ColorPicker from './ColorPickerContainer'
 import { values } from 'ramda'
 import { actions as layerActions } from '../redux/modules/layers'
 import { actions as storeActions } from '../redux/modules/store'
@@ -34,6 +35,7 @@ class LayerListContainer extends Component {
         </LayerList>
         <div style={{ position: 'fixed', bottom: 0, right: 0 }}>
           <button onClick={createLayer}>add layer</button>
+          <ColorPicker />
         </div>
       </div>
     )

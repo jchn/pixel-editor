@@ -3,6 +3,7 @@ import { Provider } from 'react-redux'
 import store from './redux/configureStore'
 import Canvas from './containers/CanvasContainer';
 import LayerList from './containers/LayerListContainer'
+import ColorPicker from './containers/ColorPickerContainer'
 import './App.css';
 
 const P = [
@@ -98,6 +99,7 @@ class App extends Component {
             />
           </div>
           <LayerList />
+          <ColorPicker />
         </div>
       </Provider>
     );
