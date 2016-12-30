@@ -1,6 +1,13 @@
 import React from 'react'
 import { drawCellUsingContext } from '../utils'
 
+const getPixelIndex = (width, height, scale, x, y) => {
+    const indexX = Math.floor(x / scale)
+    const indexY = Math.floor(y / scale)
+
+    return indexY * width + indexX
+}
+
 class Canvas extends React.Component {
   assignCanvas = (el) => {
     this.ctx = el.getContext('2d')
@@ -29,6 +36,30 @@ class Canvas extends React.Component {
     })
   }
 
+  onMouseMoveCanvas = (e) => {
+    const { width, height, scale, interact } = this.props
+    const bounds = this.canvas.getBoundingClientRect()
+    const x = e.clientX - bounds.left
+    const y = e.clientY - bounds.top
+
+    if (this.mouseDown) {
+      interact(getPixelIndex(width, height, scale, x, y))
+    }
+  }
+
+  onMouseDownCanvas = (e) => {
+    const { width, height, scale, interact } = this.props
+    const bounds = this.canvas.getBoundingClientRect()
+    const x = e.clientX - bounds.left
+    const y = e.clientY - bounds.top
+    interact(getPixelIndex(width, height, scale, x, y))
+    this.mouseDown = true
+  }
+
+  onMouseUpCanvas = (e) => {
+    this.mouseDown = false
+  }
+
   render () {
     const { width, height, scale, ...props } = this.props
     return (
@@ -36,6 +67,9 @@ class Canvas extends React.Component {
         width={width * scale}
         height={height * scale}
         ref={this.assignCanvas}
+        onMouseDown={this.onMouseDownCanvas}
+        onMouseUp={this.onMouseUpCanvas}
+        onMouseMove={this.onMouseMoveCanvas}
         style={{ backgroundColor: 'white', width: `${width * scale}px`, height: `${height * scale}px` }}
         {...props}
       ></canvas>
