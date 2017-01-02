@@ -29,6 +29,15 @@ const deleteLayer = (id) => {
   }
 }
 
+const UPDATE_LAYER_ORDER = 'UPDATE_LAYER_ORDER'
+
+const updateLayerOrder = (ids) => {
+  return {
+    type: UPDATE_LAYER_ORDER,
+    payload: ids
+  }
+}
+
 const DRAW_PIXEL = 'DRAW_PIXEL'
 const drawPixel = ({ color, layerId, index }) => {
   return {
@@ -41,10 +50,23 @@ const drawPixel = ({ color, layerId, index }) => {
   }
 }
 
+const UPDATE_LAYER_NAME = 'UPDATE_LAYER_NAME'
+const updateLayerName = (id, name) => {
+  return {
+    type: UPDATE_LAYER_NAME,
+    payload: {
+      id,
+      name
+    }
+  }
+}
+
 export const actions = {
  reorderLayers,
  createLayer,
  deleteLayer,
+ updateLayerName,
+ updateLayerOrder,
  drawPixel
 }
 
@@ -54,65 +76,6 @@ const layerModel = {
 }
 
 let defaultState = addModelToStore({}, layerModel)
-
-const P = [
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0,
-  0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0,
-  0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0,
-
-  0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0,
-  0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0,
-  0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0,
-  0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0,
-
-  0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0,
-  0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0,
-  0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-
-  0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-].map(v => v === 1 ? 'red': false)
-
-const I = [
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-
-  0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0,
-  
-  0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0,
-  
-  0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-].map(v => v === 1 ? 'red': false)
-
-const myLayer = {
-  id: '1',
-  name: 'myLayer',
-  pixels: P
-}
-
-const myLayer2 = {
-  id: '2',
-  name: 'myLayer2',
-  pixels: I
-}
-
-// defaultState = addEntityToStore(defaultState, layerModel, myLayer)
-defaultState = addEntityToStore(Object.assign({}, defaultState), layerModel, myLayer2)
 
 export default handleActions({
   [REORDER_LAYERS]: (state, { payload }) => {
@@ -128,8 +91,16 @@ export default handleActions({
     return addEntityToStore(Object.assign({}, state), layerModel, newLayer)
   },
   [DELETE_LAYER]: (state, { payload }) => {
-    console.log(DELETE_LAYER, payload, state)
     return removeEntityFromStore(Object.assign({}, state), layerModel, payload)
+  },
+  [UPDATE_LAYER_NAME]: (state, { payload }) => {
+    const { id, name } = payload
+    return updateEntity(Object.assign({}, state), layerModel, id, { name })
+  },
+  [UPDATE_LAYER_ORDER]: (state, { payload }) => {
+    const nextState = Object.assign({}, state)
+    nextState.layers.ids = payload
+    return nextState
   },
   [DRAW_PIXEL]: (state, { payload }) => {
     const { layerId, color, index } = payload

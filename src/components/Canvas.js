@@ -77,7 +77,7 @@ class Canvas extends React.Component {
         onMouseDown={this.onMouseDownCanvas}
         onMouseUp={this.onMouseUpCanvas}
         onMouseMove={this.onMouseMoveCanvas}
-        style={{ backgroundColor: 'white', width: `${width * scale}px`, height: `${height * scale}px` }}
+        style={{ backgroundColor: 'white',  userDrag: 'none', width: `${width * scale}px`, height: `${height * scale}px` }}
         {...props}
       ></canvas>
     )
