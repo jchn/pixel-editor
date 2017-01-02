@@ -10,6 +10,8 @@ const getPixelIndex = (width, height, scale, x, y) => {
 
 class Canvas extends React.Component {
   assignCanvas = (el) => {
+    console.log('el', el)
+    if (!el) return
     this.ctx = el.getContext('2d')
     this.canvas = el
   }
@@ -22,9 +24,14 @@ class Canvas extends React.Component {
     this.drawPixels()
   }
 
+  clearCanvas () {
+    const { width, height, scale } = this.props
+    this.ctx.clearRect(0, 0, width * scale, height * scale)
+  }
+
   drawPixels () {
     const { pixels, width, height, scale } = this.props
-
+    this.clearCanvas()
     pixels.forEach((value, index) => {
       drawCellUsingContext(
         this.ctx,

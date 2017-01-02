@@ -1,5 +1,5 @@
 import { handleActions } from 'redux-actions'
-import { addModelToStore, addEntityToStore, updateEntity } from 'schuur'
+import { addModelToStore, addEntityToStore, updateEntity, removeEntityFromStore } from 'schuur'
 import uuid from 'uuid'
 
 const REORDER_LAYERS = 'REORDER_LAYERS'
@@ -20,6 +20,15 @@ const createLayer = () => {
   }
 }
 
+const DELETE_LAYER = 'DELETE_LAYER'
+
+const deleteLayer = (id) => {
+  return {
+    type: DELETE_LAYER,
+    payload: id
+  }
+}
+
 const DRAW_PIXEL = 'DRAW_PIXEL'
 const drawPixel = ({ color, layerId, index }) => {
   return {
@@ -35,6 +44,7 @@ const drawPixel = ({ color, layerId, index }) => {
 export const actions = {
  reorderLayers,
  createLayer,
+ deleteLayer,
  drawPixel
 }
 
@@ -102,7 +112,7 @@ const myLayer2 = {
 }
 
 // defaultState = addEntityToStore(defaultState, layerModel, myLayer)
-defaultState = addEntityToStore(defaultState, layerModel, myLayer2)
+defaultState = addEntityToStore(Object.assign({}, defaultState), layerModel, myLayer2)
 
 export default handleActions({
   [REORDER_LAYERS]: (state, { payload }) => {
@@ -116,6 +126,10 @@ export default handleActions({
   [CREATE_LAYER]: (state, { payload }) => {
     const newLayer = { id: uuid.v4(), name: 'Untitled layer', pixels: Array.from({ length: 16 * 16 }) }
     return addEntityToStore(Object.assign({}, state), layerModel, newLayer)
+  },
+  [DELETE_LAYER]: (state, { payload }) => {
+    console.log(DELETE_LAYER, payload, state)
+    return removeEntityFromStore(Object.assign({}, state), layerModel, payload)
   },
   [DRAW_PIXEL]: (state, { payload }) => {
     const { layerId, color, index } = payload

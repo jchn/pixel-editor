@@ -16,11 +16,35 @@ const mapStateToProps = (state) => {
 const mapDispatchToProps = (dispatch) => {
   return {
     onClickLayer: (id) => () => dispatch(layerActions.selectLayer(id)),
-    createLayer: () => dispatch(storeActions.createLayer())
+    createLayer: () => dispatch(storeActions.createLayer()),
+    deleteLayer: (id) => dispatch(storeActions.deleteLayer(id))
   }
 }
 
 class LayerListContainer extends Component {
+  deleteSelectedLayer = () => {
+    const { selectedLayerId, deleteLayer } = this.props
+    deleteLayer(selectedLayerId)
+  }
+
+  onKeyup = (e) => {
+    switch (e.keyCode) {
+      case 8:
+        this.deleteSelectedLayer()
+        break
+      default:
+        return false
+    }
+  }
+
+  componentWillMount () {
+    window.document.body.addEventListener('keyup', this.onKeyup)
+  }
+
+  componentWillUnmount () {
+    window.document.body.removeEventListener('keyup', this.onKeyup)
+  }
+
   render () {
     const { layers, onClickLayer, selectedLayerId, createLayer } = this.props
     return (
