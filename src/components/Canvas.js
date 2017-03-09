@@ -1,5 +1,6 @@
 import React, { Component, PropTypes } from 'react'
 import { drawCellUsingContext } from '../utils'
+import Pointable from './Pointable'
 
 const getPixelIndex = (width, height, scale, x, y) => {
     const indexX = Math.floor(x / scale)
@@ -9,13 +10,6 @@ const getPixelIndex = (width, height, scale, x, y) => {
 }
 
 class Canvas extends React.Component {
-  assignCanvas = (el) => {
-    console.log('el', el)
-    if (!el) return
-    this.ctx = el.getContext('2d')
-    this.canvas = el
-  }
-
   componentDidMount () {
     this.drawPixels()
   }
@@ -43,42 +37,20 @@ class Canvas extends React.Component {
     })
   }
 
-  onMouseMoveCanvas = (e) => {
-    const { width, height, scale, interact, onHover } = this.props
-    const bounds = this.canvas.getBoundingClientRect()
-    const x = e.clientX - bounds.left
-    const y = e.clientY - bounds.top
-
-    onHover(getPixelIndex(width, height, scale, x, y), e)
-
-    if (this.mouseDown) {
-      interact(getPixelIndex(width, height, scale, x, y))
-    }
-  }
-
-  onMouseDownCanvas = (e) => {
-    const { width, height, scale, interact } = this.props
-    const bounds = this.canvas.getBoundingClientRect()
-    const x = e.clientX - bounds.left
-    const y = e.clientY - bounds.top
-    interact(getPixelIndex(width, height, scale, x, y))
-    this.mouseDown = true
-  }
-
-  onMouseUpCanvas = (e) => {
-    this.mouseDown = false
-  }
-
   render () {
-    const { width, height, scale, ...props } = this.props
+    const { width, height, scale } = this.props
+
+    const assignCanvas = el => {
+      if (!el) return
+      this.canvas = el
+      this.ctx = el.getContext('2d')
+    }
+
     return (
       <canvas
         width={width * scale}
         height={height * scale}
-        ref={this.assignCanvas}
-        onMouseDown={this.onMouseDownCanvas}
-        onMouseUp={this.onMouseUpCanvas}
-        onMouseMove={this.onMouseMoveCanvas}
+        ref={assignCanvas}
         style={{ backgroundColor: 'white',  userDrag: 'none', width: `${width * scale}px`, height: `${height * scale}px`, cursor: 'crosshair' }}
       ></canvas>
     )
@@ -88,16 +60,13 @@ class Canvas extends React.Component {
 const noop = () => {}
 
 Canvas.propTypes = {
-  width: PropTypes.number,
-  height: PropTypes.number,
-  style: PropTypes.object,
-  interact: PropTypes.func,
-  onHover: PropTypes.func
+  width: PropTypes.number.isRequired,
+  height: PropTypes.number.isRequired,
+  scale: PropTypes.number.isRequired
 }
 
 Canvas.defaultProps = {
-  interact: noop,
-  onHover: noop
+
 }
 
 export default Canvas

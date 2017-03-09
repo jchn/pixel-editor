@@ -3,6 +3,8 @@ import { connect } from 'react-redux'
 import { values } from 'ramda'
 import Canvas from '../components/Canvas'
 import { actions as storeActions } from '../redux/modules/store'
+import { actions as pointerActions } from '../redux/modules/pointer'
+import PointableGrid from '../components/PointableGrid'
 
 const mapStateToProps = (state) => {
   return {
@@ -14,23 +16,34 @@ const mapStateToProps = (state) => {
 
 const mapDispatchToProps = (dispatch) => {
   return {
-    draw: (layerId, color) => (pixelIndex) => dispatch(storeActions.drawPixel({ color, layerId, index: pixelIndex })),
-    drawPreviewPixel: pixelIndex => dispatch(storeActions.drawPreviewPixel({ index: pixelIndex }))
+    draw: (layerId, color) => (e, pixelIndex) => dispatch(storeActions.drawPixel({ color, layerId, index: pixelIndex })),
+    drawPreviewPixel: pixelIndex => dispatch(storeActions.drawPreviewPixel({ index: pixelIndex })),
+    updateCurrentPixelIndex: (e, pixelIndex) => dispatch(pointerActions.updateCurrentPixelIndex(pixelIndex)),
+    setPointerDown: isPointerDown => e => dispatch(pointerActions.setPointerDown(isPointerDown))
   }
 }
 
 class CanvasContainer extends Component {
   render () {
-    const { pixels, draw, drawPreviewPixel, currentLayerId, currentColor, ...props } = this.props
+    const { pixels, draw, drawPreviewPixel, currentLayerId, currentColor, updateCurrentPixelIndex, setPointerDown, ...props } = this.props
     return (
-      <Canvas
+      <PointableGrid
         width={16}
         height={16}
         scale={32}
-        pixels={pixels}
-        interact={draw(currentLayerId, currentColor)}
-        onHover={drawPreviewPixel}
-        {...props} />
+        onPointerDown={setPointerDown(true)}
+        onPointerUp={setPointerDown(false)}
+        onPointerCancel={setPointerDown(false)}
+        onPointerMove={updateCurrentPixelIndex}
+      >
+        <Canvas
+          width={16}
+          height={16}
+          scale={32}
+          pixels={pixels}
+          onHover={drawPreviewPixel}
+          {...props} />
+        </PointableGrid>
     )
   }
 }
