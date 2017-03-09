@@ -6,7 +6,7 @@ import { actions as storeActions } from '../redux/modules/store'
 
 const mapStateToProps = (state) => {
   return {
-    pixels: values(state.store.layers.ids).map(id => state.store.layers.byId[id]).map(layer => layer.pixels).reduce((a, b) => a.concat(b), []),
+    pixels: values(state.store.layers.ids).reverse().map(id => state.store.layers.byId[id]).map(layer => layer.pixels).reduce((a, b) => a.concat(b), []),
     currentLayerId: state.layers.selectedLayerId,
     currentColor: state.colors.currentColor
   }
@@ -14,13 +14,14 @@ const mapStateToProps = (state) => {
 
 const mapDispatchToProps = (dispatch) => {
   return {
-    draw: (layerId, color) => (pixelIndex) => dispatch(storeActions.drawPixel({ color, layerId, index: pixelIndex }))
+    draw: (layerId, color) => (pixelIndex) => dispatch(storeActions.drawPixel({ color, layerId, index: pixelIndex })),
+    drawPreviewPixel: pixelIndex => dispatch(storeActions.drawPreviewPixel({ index: pixelIndex }))
   }
 }
 
 class CanvasContainer extends Component {
   render () {
-    const { pixels, draw, currentLayerId, currentColor, ...props } = this.props
+    const { pixels, draw, drawPreviewPixel, currentLayerId, currentColor, ...props } = this.props
     return (
       <Canvas
         width={16}
@@ -28,6 +29,7 @@ class CanvasContainer extends Component {
         scale={32}
         pixels={pixels}
         interact={draw(currentLayerId, currentColor)}
+        onHover={drawPreviewPixel}
         {...props} />
     )
   }

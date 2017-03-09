@@ -12,6 +12,7 @@ const reorderLayers = (ids) => {
 }
 
 const CREATE_LAYER = 'CREATE_LAYER'
+const CLEAR_LAYER = Symbol('CLEAR_LAYER')
 
 const createLayer = () => {
   return {
@@ -50,6 +51,33 @@ const drawPixel = ({ color, layerId, index }) => {
   }
 }
 
+const ERASE_PIXEL = Symbol('ERASE_PIXEL')
+const erasePixel = ({ layerId, index }) => {
+  return {
+    type: ERASE_PIXEL,
+    payload: {
+      index,
+      layerId
+    }
+  }
+}
+
+const drawPreviewPixel = ({ index }) => {
+  return dispatch => {
+    // First clear the layer
+    dispatch({
+      type: CLEAR_LAYER,
+      payload: 'preview-layer'
+    })
+
+    // Then draw the new preview
+    dispatch({
+      type: DRAW_PIXEL,
+      payload: { layerId: 'preview-layer', color: 'pink', index }
+    })
+  }
+}
+
 const UPDATE_LAYER_NAME = 'UPDATE_LAYER_NAME'
 const updateLayerName = (id, name) => {
   return {
@@ -67,7 +95,9 @@ export const actions = {
  deleteLayer,
  updateLayerName,
  updateLayerOrder,
- drawPixel
+ drawPixel,
+ drawPreviewPixel,
+ erasePixel
 }
 
 const layerModel = {
@@ -75,7 +105,12 @@ const layerModel = {
   typePlural: 'layers'
 }
 
-let defaultState = addModelToStore({}, layerModel)
+let defaultState = addModelToStore(layerModel, {})
+
+const previewLayer = { id: 'preview-layer', name: 'preview', pixels: Array.from({ length: 16 * 16 }) }
+defaultState = addEntityToStore(layerModel, previewLayer, defaultState)
+
+defaultState = addEntityToStore(layerModel, { id: 'default-layer', name: 'Untitled layer', pixels: Array.from({ length: 16 * 16 }) }, defaultState)
 
 export default handleActions({
   [REORDER_LAYERS]: (state, { payload }) => {
@@ -88,14 +123,14 @@ export default handleActions({
   },
   [CREATE_LAYER]: (state, { payload }) => {
     const newLayer = { id: uuid.v4(), name: 'Untitled layer', pixels: Array.from({ length: 16 * 16 }) }
-    return addEntityToStore(Object.assign({}, state), layerModel, newLayer)
+    return addEntityToStore(layerModel, newLayer, Object.assign({}, state))
   },
   [DELETE_LAYER]: (state, { payload }) => {
-    return removeEntityFromStore(Object.assign({}, state), layerModel, payload)
+    return removeEntityFromStore(layerModel, payload, Object.assign({}, state))
   },
   [UPDATE_LAYER_NAME]: (state, { payload }) => {
     const { id, name } = payload
-    return updateEntity(Object.assign({}, state), layerModel, id, { name })
+    return updateEntity(layerModel, id, { name }, Object.assign({}, state))
   },
   [UPDATE_LAYER_ORDER]: (state, { payload }) => {
     const nextState = Object.assign({}, state)
@@ -110,6 +145,21 @@ export default handleActions({
 
     pixels[index] = color
 
-    return updateEntity(Object.assign({}, state), layerModel, layerId, { pixels })
+    return updateEntity(layerModel, layerId, { pixels }, Object.assign({}, state))
+  },
+  [CLEAR_LAYER]: (state, { payload }) => {
+    const layerId = payload
+
+    return updateEntity(layerModel, layerId, { pixels: Array.from({ length: 16 * 16 }) }, Object.assign({}, state))
+  },
+  [ERASE_PIXEL]: (state, { payload }) => {
+    const { layerId, index } = payload
+
+    const layer = state.layers.byId[layerId]
+    const { pixels } = layer
+
+    pixels[index] = null
+
+    return updateEntity(layerModel, layerId, { pixels }, Object.assign({}, state))
   }
 }, defaultState)

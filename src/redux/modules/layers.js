@@ -20,4 +20,4 @@ export default handleActions({
       selectedLayerId: payload
     }
   }
-}, { selectedLayerId: null })
+}, { selectedLayerId: 'default-layer' })

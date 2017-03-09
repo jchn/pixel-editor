@@ -2,9 +2,13 @@ import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import LayerList from '../components/LayerList'
 import ColorPicker from './ColorPickerContainer'
+import Button from '../components/Button'
+import Icon from '../components/Icon'
 import { actions as layerActions } from '../redux/modules/layers'
 import { actions as storeActions } from '../redux/modules/store'
+import { actions as toolsActions } from '../redux/modules/tools'
 import { SortableContainer, SortableElement, arrayMove } from 'react-sortable-hoc'
+import renderListItem from './layerListRenderer'
 
 const SortableLayerList = SortableContainer(LayerList)
 const SortableLayerListItem = SortableElement(LayerList.Item)
@@ -24,7 +28,8 @@ const mapDispatchToProps = (dispatch) => {
     createLayer: () => dispatch(storeActions.createLayer()),
     deleteLayer: (id) => dispatch(storeActions.deleteLayer(id)),
     updateLayerName: (id) => ({ name }) => dispatch(storeActions.updateLayerName(id, name)),
-    updateLayerOrder: (ids) => dispatch(storeActions.updateLayerOrder(ids))
+    updateLayerOrder: (ids) => dispatch(storeActions.updateLayerOrder(ids)),
+    selectEraser: () => dispatch(toolsActions.selectTool('eraser'))
   }
 }
 
@@ -59,22 +64,24 @@ class LayerListContainer extends Component {
   }
 
   render () {
-    const { layers, onClickLayer, selectedLayerId, createLayer, updateLayerName } = this.props
+    const { layers, onClickLayer, selectedLayerId, createLayer, updateLayerName, selectEraser } = this.props
     return (
       <div>
         <SortableLayerList distance={10} onSortEnd={this.updateOrder}>
-          {layers.map((l, i) => <SortableLayerListItem
-            key={l.id}
-            index={i}
-            selected={l.id === selectedLayerId}
-            onClick={onClickLayer(l.id)}
-            paramName='name'
-            change={updateLayerName(l.id)}
-            {...l}
-            />)}
+          {layers.map((layer, index) => (
+            renderListItem({
+              layer,
+              index,
+              isSelected: selectedLayerId === layer.id,
+              onClick: onClickLayer(layer.id),
+              onChangeName: updateLayerName(layer.id)
+            })
+          ))}
         </SortableLayerList>
         <div style={{ position: 'fixed', bottom: 0, right: 0 }}>
-          <button onClick={createLayer}>add layer</button>
+          <Button onClick={createLayer}><Icon type='add' color='white' /></Button>
+          <Button active onClick={() => {}}><Icon type='pen' color='white' /></Button>
+          <Button onClick={selectEraser}>eraser</Button>
           <ColorPicker />
         </div>
       </div>

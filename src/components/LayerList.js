@@ -1,10 +1,21 @@
 import React from 'react'
 import LayerListItem from './LayerListItem'
+import styled from 'styled-components'
+
+const Wrapper = styled.div`
+  border: 1px solid;
+  background-color: #282828;
+  width: 300px;
+  position: fixed;
+  top: 0;
+  right: 0;
+  height: 100%;
+`
 
 const LayerList = ({ children }) => (
-  <div style={{ border: '1px solid', backgroundColor: '#282828', width: '200px', position: 'fixed', top: 0, right: 0, height: '100%' }}>
+  <Wrapper>
     {children}
-  </div>
+  </Wrapper>
 )
 
 LayerList.Item = LayerListItem

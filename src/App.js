@@ -94,8 +94,8 @@ class App extends Component {
               width={16}
               height={16}
               scale={32}
-              pixels={pixels}
-              style={{ backgroundColor: 'white' }}
+              pixels={[]}
+              style={{ backgroundColor: 'white', cursor: 'crosshair', userSelect: 'none' }}
             />
           </div>
           <LayerList />

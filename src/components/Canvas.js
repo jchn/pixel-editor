@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { Component, PropTypes } from 'react'
 import { drawCellUsingContext } from '../utils'
 
 const getPixelIndex = (width, height, scale, x, y) => {
@@ -44,10 +44,12 @@ class Canvas extends React.Component {
   }
 
   onMouseMoveCanvas = (e) => {
-    const { width, height, scale, interact } = this.props
+    const { width, height, scale, interact, onHover } = this.props
     const bounds = this.canvas.getBoundingClientRect()
     const x = e.clientX - bounds.left
     const y = e.clientY - bounds.top
+
+    onHover(getPixelIndex(width, height, scale, x, y), e)
 
     if (this.mouseDown) {
       interact(getPixelIndex(width, height, scale, x, y))
@@ -77,11 +79,25 @@ class Canvas extends React.Component {
         onMouseDown={this.onMouseDownCanvas}
         onMouseUp={this.onMouseUpCanvas}
         onMouseMove={this.onMouseMoveCanvas}
-        style={{ backgroundColor: 'white',  userDrag: 'none', width: `${width * scale}px`, height: `${height * scale}px` }}
-        {...props}
+        style={{ backgroundColor: 'white',  userDrag: 'none', width: `${width * scale}px`, height: `${height * scale}px`, cursor: 'crosshair' }}
       ></canvas>
     )
   }
+}
+
+const noop = () => {}
+
+Canvas.propTypes = {
+  width: PropTypes.number,
+  height: PropTypes.number,
+  style: PropTypes.object,
+  interact: PropTypes.func,
+  onHover: PropTypes.func
+}
+
+Canvas.defaultProps = {
+  interact: noop,
+  onHover: noop
 }
 
 export default Canvas
