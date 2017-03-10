@@ -29,7 +29,9 @@ const mapDispatchToProps = (dispatch) => {
     deleteLayer: (id) => dispatch(storeActions.deleteLayer(id)),
     updateLayerName: (id) => ({ name }) => dispatch(storeActions.updateLayerName(id, name)),
     updateLayerOrder: (ids) => dispatch(storeActions.updateLayerOrder(ids)),
-    selectEraser: () => dispatch(toolsActions.selectTool('eraser'))
+    selectPenTool: () => dispatch(toolsActions.selectTool('pen')),
+    selectEraser: () => dispatch(toolsActions.selectTool('eraser')),
+    selectRectangleTool: () => dispatch(toolsActions.selectTool('rectangle'))
   }
 }
 
@@ -64,7 +66,7 @@ class LayerListContainer extends Component {
   }
 
   render () {
-    const { layers, onClickLayer, selectedLayerId, createLayer, updateLayerName, selectEraser } = this.props
+    const { layers, onClickLayer, selectedLayerId, createLayer, updateLayerName, selectPenTool, selectEraser, selectRectangleTool } = this.props
     return (
       <div>
         <SortableLayerList distance={10} onSortEnd={this.updateOrder}>
@@ -80,8 +82,9 @@ class LayerListContainer extends Component {
         </SortableLayerList>
         <div style={{ position: 'fixed', bottom: 0, right: 0 }}>
           <Button onClick={createLayer}><Icon type='add' color='white' /></Button>
-          <Button active onClick={() => {}}><Icon type='pen' color='white' /></Button>
+          <Button active onClick={selectPenTool}><Icon type='pen' color='white' /></Button>
           <Button onClick={selectEraser}>eraser</Button>
+          <Button onClick={selectRectangleTool}>rectangle</Button>
           <ColorPicker />
         </div>
       </div>

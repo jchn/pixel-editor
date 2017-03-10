@@ -19,7 +19,7 @@ const mapDispatchToProps = (dispatch) => {
     draw: (layerId, color) => (e, pixelIndex) => dispatch(storeActions.drawPixel({ color, layerId, index: pixelIndex })),
     drawPreviewPixel: pixelIndex => dispatch(storeActions.drawPreviewPixel({ index: pixelIndex })),
     updateCurrentPixelIndex: (e, pixelIndex) => dispatch(pointerActions.updateCurrentPixelIndex(pixelIndex)),
-    setPointerDown: isPointerDown => e => dispatch(pointerActions.setPointerDown(isPointerDown))
+    setPointerDown: isPointerDown => (e, pixelIndex) => dispatch(pointerActions.setPointerDown({isPointerDown, pixelIndex}))
   }
 }
 

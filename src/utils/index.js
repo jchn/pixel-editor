@@ -1,5 +1,9 @@
 import drawCellUsingContext from './drawCellUsingContext'
+import getPixelIndex from './getPixelIndex'
+import getCoordsFromPixelIndex from './getCoordsFromPixelIndex'
 
 export {
-  drawCellUsingContext
+  drawCellUsingContext,
+  getPixelIndex,
+  getCoordsFromPixelIndex
 }

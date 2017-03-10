@@ -11,10 +11,13 @@ const updateCurrentPixelIndex = pixelIndex => {
   }
 }
 
-const setPointerDown = isPointerDown => {
+const setPointerDown = ({isPointerDown, pixelIndex}) => {
   return {
     type: SET_POINTER_DOWN,
-    payload: isPointerDown
+    payload: {
+      isPointerDown,
+      pixelIndex
+    }
   }
 }
 
@@ -25,14 +28,16 @@ export const actions = {
 
 const DEFAULT_STATE = {
   isPointerDown: false,
-  currentPixelIndex: null
+  currentPixelIndex: null,
+  fromPixelIndex: null
 }
 
 export default handleActions({
-  [SET_POINTER_DOWN]: (state, { payload }) => {
+  [SET_POINTER_DOWN]: (state, { payload: { isPointerDown, pixelIndex } }) => {
     return {
       ...state,
-      isPointerDown: payload
+      isPointerDown,
+      fromPixelIndex: isPointerDown ? pixelIndex : null
     }
   },
   [UPDATE_CURRENT_PIXEL_INDEX]: (state, { payload }) => {

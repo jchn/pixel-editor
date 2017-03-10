@@ -13,7 +13,8 @@ const selectTool = tool => {
 const DEFAULT_STATE = {
   selected: {
     pen: true,
-    eraser: false
+    eraser: false,
+    rectangle: false
   }
 }
 
