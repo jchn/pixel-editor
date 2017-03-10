@@ -119,6 +119,30 @@ const drawPreviewRectangle = ({ fromIndex, toIndex, color, layerId }) => {
   }
 }
 
+const DRAW_LINE = Symbol('DRAW_LINE')
+const drawLine = ({ fromIndex, toIndex, color, layerId }) => {
+  return {
+    type: DRAW_LINE,
+    payload: {
+      fromIndex,
+      toIndex,
+      color,
+      layerId
+    }
+  }
+}
+
+const drawPreviewLine = ({ fromIndex, toIndex, color, layerId }) => {
+  return dispatch => {
+    dispatch(clearLayer('preview-layer'))
+
+    dispatch({
+      type: DRAW_LINE,
+      payload: { fromIndex, toIndex, color: 'pink', layerId: 'preview-layer' }
+    })
+  }
+}
+
 export const actions = {
  reorderLayers,
  createLayer,
@@ -129,6 +153,8 @@ export const actions = {
  drawPreviewPixel,
  drawRectangle,
  drawPreviewRectangle,
+ drawLine,
+ drawPreviewLine,
  erasePixel,
  clearLayer
 }
@@ -191,7 +217,7 @@ export default handleActions({
     const rectangleWidth = toX - fromX
     const rectangleHeight = toY - fromY
 
-    // Gettings all coordinatas from the rectangles clockwise, starting top left
+    // Getting all coordinatas from the rectangles clockwise, starting top left
 
     const coordsSideA = times(index => {
       const i = rectangleWidth < 0 ? index * -1 : index
@@ -220,6 +246,32 @@ export default handleActions({
       const pixelIndex = getPixelIndex(layer.width, layer.height, 1, x, y)
       pixels[pixelIndex] = color
     })
+
+    return updateEntity(layerModel, layerId, { pixels }, Object.assign({}, state))
+  },
+  [DRAW_LINE]: (state, { payload: { fromIndex, toIndex, color, layerId } }) => {
+    // TODO: choose an algorhitm: https://en.wikipedia.org/wiki/Line_drawing_algorithm
+    const layer = state.layers.byId[layerId]
+    const { pixels } = layer
+
+    // Getting all coordinates from the line
+    const [x1, y1] = getCoordsFromPixelIndex(layer.width, fromIndex)
+    const [x2, y2] = getCoordsFromPixelIndex(layer.width, toIndex)
+
+    const dx = x2 - x1
+    const dy = y2 - y1
+
+    for (let x = x1; x <= x2; x++) {
+      const y = y1 + dy * (x - x1) / dx
+      const pixelIndex = getPixelIndex(layer.width, layer.height, 1, Math.floor(x), Math.floor(y))
+      pixels[pixelIndex] = color
+    }
+
+    for (let x = x1; x >= x2; x--) {
+      const y = y1 + dy * (x - x1) / dx
+      const pixelIndex = getPixelIndex(layer.width, layer.height, 1, Math.floor(x), Math.floor(y))
+      pixels[pixelIndex] = color
+    }
 
     return updateEntity(layerModel, layerId, { pixels }, Object.assign({}, state))
   },
