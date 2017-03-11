@@ -16,6 +16,9 @@ storiesOf('Button', module)
   ))
   .add('with some icon', () => (
     <Button onClick={action('clicked')}><Icon type='add' color='white' /></Button>
+  ))
+  .add('active', () => (
+    <Button active onClick={action('clicked')}><Icon type='add' color='white' /></Button>
   ));
 
 storiesOf('Icon', module)

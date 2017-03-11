@@ -18,7 +18,8 @@ console.log('SortableLayerList', SortableLayerList)
 const mapStateToProps = (state) => {
   return {
     layers: state.store.layers.ids.map(id => state.store.layers.byId[id]),
-    selectedLayerId: state.layers.selectedLayerId
+    selectedLayerId: state.layers.selectedLayerId,
+    selectedTool: state.tools.selected
   }
 }
 
@@ -67,7 +68,7 @@ class LayerListContainer extends Component {
   }
 
   render () {
-    const { layers, onClickLayer, selectedLayerId, createLayer, updateLayerName, selectPenTool, selectEraser, selectRectangleTool, selectLineTool } = this.props
+    const { layers, onClickLayer, selectedLayerId, createLayer, updateLayerName, selectPenTool, selectEraser, selectRectangleTool, selectLineTool, selectedTool } = this.props
     return (
       <div>
         <SortableLayerList distance={10} onSortEnd={this.updateOrder}>
@@ -83,10 +84,10 @@ class LayerListContainer extends Component {
         </SortableLayerList>
         <div style={{ position: 'fixed', bottom: 0, right: 0 }}>
           <Button onClick={createLayer}><Icon type='add' color='white' /></Button>
-          <Button active onClick={selectPenTool}><Icon type='pen' color='white' /></Button>
-          <Button onClick={selectEraser}>eraser</Button>
-          <Button onClick={selectRectangleTool}>rectangle</Button>
-          <Button onClick={selectLineTool}>line</Button>
+          <Button active={selectedTool.pen} onClick={selectPenTool}><Icon type='pen' color='white' /></Button>
+          <Button active={selectedTool.eraser} onClick={selectEraser}>eraser</Button>
+          <Button active={selectedTool.rectangle} onClick={selectRectangleTool}>rectangle</Button>
+          <Button active={selectedTool.line} onClick={selectLineTool}>line</Button>
           <ColorPicker />
         </div>
       </div>
