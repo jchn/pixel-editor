@@ -151,6 +151,23 @@ const fill = ({color, layerId, index}) => {
   }
 }
 
+const DRAW_ELLIPSE = Symbol('DRAW_ELLIPSE')
+
+const drawEllipse = ({ fromIndex, toIndex, color, layerId }) => {
+  return ({
+    type: DRAW_ELLIPSE,
+    payload: { fromIndex, toIndex, color, layerId }
+  })
+}
+
+const drawPreviewEllipse = ({ fromIndex, toIndex }) => {
+  return dispatch => {
+    dispatch(clearLayer('preview-layer'))
+
+    dispatch(drawEllipse({ fromIndex, toIndex, color: 'pink', layerId: 'preview-layer' }))
+  }
+}
+
 export const actions = {
  reorderLayers,
  createLayer,
@@ -165,7 +182,9 @@ export const actions = {
  drawPreviewLine,
  erasePixel,
  clearLayer,
- fill
+ fill,
+ drawEllipse,
+ drawPreviewEllipse
 }
 
 const layerModel = {
@@ -290,6 +309,33 @@ export default handleActions({
     })
 
     return updateEntity(layerModel, layerId, { pixels }, Object.assign({}, state))
+  },
+  [DRAW_ELLIPSE]: (state, { payload: { fromIndex, toIndex, color, layerId } }) => {
+    const layer = state.layers.byId[layerId]
+
+    const [x1, y1] = getCoordsFromPixelIndex(layer.width, fromIndex)
+    const [x2, y2] = getCoordsFromPixelIndex(layer.width, toIndex)
+
+    const radiusX = (x2 - x1) * 0.5
+    const radiusY = (y2 - y1) * 0.5
+    const centerX = x1 + radiusX
+    const centerY = y1 + radiusY
+    const step = 0.01
+    const pi2 = Math.PI * 2 - step
+
+    const points = []
+
+    for (let a = step; a < pi2; a += step) {
+      points.push([Math.round(centerX + radiusX * Math.cos(a)), Math.round(centerY + radiusY * Math.sin(a))])
+    }
+
+    let newPixels = layer.pixels.slice()
+
+    const indexes = points.map(point => getPixelIndex(layer.width, layer.height, 1, point[0], point[1]))
+
+    indexes.forEach(index => newPixels[index] = color)
+
+    return updateEntity(layerModel, layerId, { pixels: newPixels }, state)
   },
   [DRAW_LINE]: (state, { payload: { fromIndex, toIndex, color, layerId } }) => {
     // TODO: choose an algorhitm: https://en.wikipedia.org/wiki/Line_drawing_algorithm
