@@ -33,7 +33,8 @@ const mapDispatchToProps = (dispatch) => {
     selectPenTool: () => dispatch(toolsActions.selectTool('pen')),
     selectEraser: () => dispatch(toolsActions.selectTool('eraser')),
     selectRectangleTool: () => dispatch(toolsActions.selectTool('rectangle')),
-    selectLineTool: () => dispatch(toolsActions.selectTool('line'))
+    selectLineTool: () => dispatch(toolsActions.selectTool('line')),
+    selectFillTool: () => dispatch(toolsActions.selectTool('fill'))
   }
 }
 
@@ -68,7 +69,7 @@ class LayerListContainer extends Component {
   }
 
   render () {
-    const { layers, onClickLayer, selectedLayerId, createLayer, updateLayerName, selectPenTool, selectEraser, selectRectangleTool, selectLineTool, selectedTool } = this.props
+    const { layers, onClickLayer, selectedLayerId, createLayer, updateLayerName, selectPenTool, selectEraser, selectRectangleTool, selectLineTool, selectedTool, selectFillTool } = this.props
     return (
       <div>
         <SortableLayerList distance={10} onSortEnd={this.updateOrder}>
@@ -88,6 +89,7 @@ class LayerListContainer extends Component {
           <Button active={selectedTool.eraser} onClick={selectEraser}>eraser</Button>
           <Button active={selectedTool.rectangle} onClick={selectRectangleTool}>rectangle</Button>
           <Button active={selectedTool.line} onClick={selectLineTool}>line</Button>
+          <Button active={selectedTool.fill} onClick={selectFillTool}>fill</Button>
           <ColorPicker />
         </div>
       </div>
