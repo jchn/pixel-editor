@@ -143,6 +143,14 @@ const drawPreviewLine = ({ fromIndex, toIndex, color, layerId }) => {
   }
 }
 
+const FILL = Symbol('FILL')
+const fill = ({color, layerId, index}) => {
+  return {
+    type: FILL,
+    payload: { color, layerId, index }
+  }
+}
+
 export const actions = {
  reorderLayers,
  createLayer,
@@ -156,7 +164,8 @@ export const actions = {
  drawLine,
  drawPreviewLine,
  erasePixel,
- clearLayer
+ clearLayer,
+ fill
 }
 
 const layerModel = {
@@ -195,6 +204,39 @@ export default handleActions({
     const nextState = Object.assign({}, state)
     nextState.layers.ids = payload
     return nextState
+  },
+  [FILL]: (state, { payload }) => {
+    const { color, layerId, index } = payload
+
+    const layer = state.layers.byId[layerId]
+
+    const fromColor = layer.pixels[index]
+
+    const seedFill = (x, y, targetColor, replacementColor, pixels, width, height) => {
+      if (x >= width || y >= height || x < 0 || y < 0) return pixels
+      if (targetColor === replacementColor) return pixels
+
+      const pixelIndex = getPixelIndex(width, height, 1, x, y)
+
+      if (pixels[pixelIndex] !== targetColor) return pixels
+
+      pixels[pixelIndex] = replacementColor
+
+      let pixelsOut = pixels.slice()
+
+      pixelsOut = seedFill(x - 1, y, targetColor, replacementColor, pixelsOut, width, height)
+      pixelsOut = seedFill(x + 1, y, targetColor, replacementColor, pixelsOut, width, height)
+      pixelsOut = seedFill(x, y - 1, targetColor, replacementColor, pixelsOut, width, height)
+      pixelsOut = seedFill(x, y + 1, targetColor, replacementColor, pixelsOut, width, height)
+
+      return pixelsOut
+    }
+
+    const [x, y] = getCoordsFromPixelIndex(layer.width, index)
+
+    const newPixels = seedFill(x, y, fromColor, color, layer.pixels, layer.width, layer.height)
+
+    return updateEntity(layerModel, layerId, { pixels: newPixels }, state)
   },
   [DRAW_PIXEL]: (state, { payload }) => {
     const { layerId, color, index } = payload

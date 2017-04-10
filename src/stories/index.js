@@ -4,6 +4,7 @@ import Button from '../components/Button';
 import Welcome from './Welcome';
 import Icon from '../components/Icon'
 import PointableGrid from '../components/PointableGrid'
+import Menu from '../components/Menu'
 
 storiesOf('Welcome', module)
   .add('to Storybook', () => (
@@ -40,4 +41,17 @@ storiesOf('PixelGrid', module)
 
       </div>
     </PointableGrid>
+  ))
+
+storiesOf('Menu', module)
+  .add('default', () => (
+    <Menu>
+      <Menu.Item>test</Menu.Item>
+
+      <Menu.SubMenu title='sub menu'>
+        <Menu.Item>test</Menu.Item>
+        <Menu.Item>test</Menu.Item>
+        <Menu.Item>test</Menu.Item>
+      </Menu.SubMenu>
+    </Menu>
   ))
