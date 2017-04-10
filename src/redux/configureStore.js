@@ -4,8 +4,9 @@ import rootReducer from './rootReducer'
 import pen from './middleware/pen'
 import rectangle from './middleware/rectangle'
 import line from './middleware/line'
+import fill from './middleware/fill'
 
 export default createStore(
   rootReducer,
-  applyMiddleware(thunk, pen, rectangle, line)
+  applyMiddleware(thunk, pen, rectangle, line, fill)
 )
