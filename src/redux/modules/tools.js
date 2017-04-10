@@ -16,7 +16,8 @@ const DEFAULT_STATE = {
     eraser: false,
     rectangle: false,
     line: true,
-    fill: false
+    fill: false,
+    ellipse: false
   }
 }
 
