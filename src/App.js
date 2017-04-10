@@ -6,7 +6,19 @@ import LayerList from './containers/LayerListContainer'
 import ColorPicker from './containers/ColorPickerContainer'
 import './App.css';
 
+import { REDO, UNDO } from './redux/reducer-enhancers/undoable'
+
 class App extends Component {
+  componentDidMount () {
+    window.document.addEventListener('keyup', function (e) {
+      switch (e.keyCode) {
+        case 90:
+          e.ctrlKey && !e.shiftKey && store.dispatch({ type: UNDO })
+          e.ctrlKey && e.shiftKey && store.dispatch({ type: REDO })
+      }
+    })
+  }
+
   render() {
     return (
       <Provider store={store}>

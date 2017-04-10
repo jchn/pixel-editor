@@ -9,7 +9,10 @@ const REORDER_LAYERS = 'REORDER_LAYERS'
 const reorderLayers = (ids) => {
   return {
     type: REORDER_LAYERS,
-    payload: ids
+    payload: ids,
+    meta: {
+      undoable: true
+    }
   }
 }
 
@@ -17,7 +20,10 @@ const CREATE_LAYER = 'CREATE_LAYER'
 const createLayer = () => {
   return {
     type: CREATE_LAYER,
-    payload: null
+    payload: null,
+    meta: {
+      undoable: true
+    }
   }
 }
 
@@ -34,7 +40,10 @@ const DELETE_LAYER = 'DELETE_LAYER'
 const deleteLayer = (id) => {
   return {
     type: DELETE_LAYER,
-    payload: id
+    payload: id,
+    meta: {
+      undoable: true
+    }
   }
 }
 
@@ -43,7 +52,10 @@ const UPDATE_LAYER_ORDER = 'UPDATE_LAYER_ORDER'
 const updateLayerOrder = (ids) => {
   return {
     type: UPDATE_LAYER_ORDER,
-    payload: ids
+    payload: ids,
+    meta: {
+      undoable: true
+    }
   }
 }
 
@@ -55,6 +67,9 @@ const drawPixel = ({ color, layerId, index }) => {
       color,
       index,
       layerId
+    },
+    meta: {
+      undoable: true
     }
   }
 }
@@ -66,6 +81,9 @@ const erasePixel = ({ layerId, index }) => {
     payload: {
       index,
       layerId
+    },
+    meta: {
+      undoable: true
     }
   }
 }
@@ -90,6 +108,9 @@ const updateLayerName = (id, name) => {
     payload: {
       id,
       name
+    },
+    meta: {
+      undoable: true
     }
   }
 }
@@ -103,6 +124,9 @@ const drawRectangle = ({ fromIndex, toIndex, color, layerId }) => {
       toIndex,
       color,
       layerId
+    },
+    meta: {
+      undoable: true
     }
   }
 }
@@ -128,6 +152,9 @@ const drawLine = ({ fromIndex, toIndex, color, layerId }) => {
       toIndex,
       color,
       layerId
+    },
+    meta: {
+      undoable: true
     }
   }
 }
@@ -147,7 +174,10 @@ const FILL = Symbol('FILL')
 const fill = ({color, layerId, index}) => {
   return {
     type: FILL,
-    payload: { color, layerId, index }
+    payload: { color, layerId, index },
+    meta: {
+      undoable: true
+    }
   }
 }
 
@@ -156,7 +186,10 @@ const DRAW_ELLIPSE = Symbol('DRAW_ELLIPSE')
 const drawEllipse = ({ fromIndex, toIndex, color, layerId }) => {
   return ({
     type: DRAW_ELLIPSE,
-    payload: { fromIndex, toIndex, color, layerId }
+    payload: { fromIndex, toIndex, color, layerId },
+    meta: {
+      undoable: true
+    }
   })
 }
 
@@ -253,27 +286,33 @@ export default handleActions({
 
     const [x, y] = getCoordsFromPixelIndex(layer.width, index)
 
-    const newPixels = seedFill(x, y, fromColor, color, layer.pixels, layer.width, layer.height)
+    const newPixels = seedFill(x, y, fromColor, color, layer.pixels.slice(), layer.width, layer.height)
 
-    return updateEntity(layerModel, layerId, { pixels: newPixels }, state)
+    return updateEntity(layerModel, layerId, { pixels: newPixels }, Object.assign({}, state))
   },
   [DRAW_PIXEL]: (state, { payload }) => {
+    // TODO, if update results in same state, return state
     const { layerId, color, index } = payload
 
     const layer = state.layers.byId[layerId]
     const { pixels } = layer
 
-    pixels[index] = color
+    const newPixels = pixels.slice()
 
-    return updateEntity(layerModel, layerId, { pixels }, Object.assign({}, state))
+    newPixels[index] = color
+
+    return updateEntity(layerModel, layerId, { pixels: newPixels }, Object.assign({}, state))
   },
   [DRAW_RECTANGLE]: (state, { payload: { fromIndex, toIndex, color, layerId } }) => {
+    // TODO, if update results in same state, return state
     const layer = state.layers.byId[layerId]
 
     const [fromX, fromY] = getCoordsFromPixelIndex(layer.width, fromIndex)
     const [toX, toY] = getCoordsFromPixelIndex(layer.width, toIndex)
 
     const { pixels } = layer
+
+    const newPixels = pixels.slice()
 
     const rectangleWidth = toX - fromX
     const rectangleHeight = toY - fromY
@@ -305,10 +344,10 @@ export default handleActions({
     rectangleCoords.forEach(coord => {
       const [x, y] = coord
       const pixelIndex = getPixelIndex(layer.width, layer.height, 1, x, y)
-      pixels[pixelIndex] = color
+      newPixels[pixelIndex] = color
     })
 
-    return updateEntity(layerModel, layerId, { pixels }, Object.assign({}, state))
+    return updateEntity(layerModel, layerId, { pixels: newPixels }, Object.assign({}, state))
   },
   [DRAW_ELLIPSE]: (state, { payload: { fromIndex, toIndex, color, layerId } }) => {
     const layer = state.layers.byId[layerId]
@@ -342,6 +381,8 @@ export default handleActions({
     const layer = state.layers.byId[layerId]
     const { pixels } = layer
 
+    const newPixels = pixels.slice()
+
     // Getting all coordinates from the line
     const [x1, y1] = getCoordsFromPixelIndex(layer.width, fromIndex)
     const [x2, y2] = getCoordsFromPixelIndex(layer.width, toIndex)
@@ -352,16 +393,16 @@ export default handleActions({
     for (let x = x1; x <= x2; x++) {
       const y = y1 + dy * (x - x1) / dx
       const pixelIndex = getPixelIndex(layer.width, layer.height, 1, Math.floor(x), Math.floor(y))
-      pixels[pixelIndex] = color
+      newPixels[pixelIndex] = color
     }
 
     for (let x = x1; x >= x2; x--) {
       const y = y1 + dy * (x - x1) / dx
       const pixelIndex = getPixelIndex(layer.width, layer.height, 1, Math.floor(x), Math.floor(y))
-      pixels[pixelIndex] = color
+      newPixels[pixelIndex] = color
     }
 
-    return updateEntity(layerModel, layerId, { pixels }, Object.assign({}, state))
+    return updateEntity(layerModel, layerId, { pixels: newPixels }, Object.assign({}, state))
   },
   [CLEAR_LAYER]: (state, { payload }) => {
     const layerId = payload

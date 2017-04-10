@@ -6,8 +6,10 @@ import tools from './modules/tools'
 import pointer from './modules/pointer'
 import settings from './modules/settings'
 
+import undoable from './reducer-enhancers/undoable'
+
 export default combineReducers({
-  store,
+  store: undoable(store, {}),
   layers,
   colors,
   tools,
