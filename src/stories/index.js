@@ -26,6 +26,9 @@ storiesOf('Icon', module)
   .add('add', () => (
     <Icon type='add' />
   ))
+  .add('eye', () => (
+    <Icon type='eye' />
+  ))
 
 storiesOf('PixelGrid', module)
   .add('grid', () => (

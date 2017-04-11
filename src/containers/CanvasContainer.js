@@ -8,7 +8,12 @@ import PointableGrid from '../components/PointableGrid'
 
 const mapStateToProps = (state) => {
   return {
-    pixels: values(state.store.present.layers.ids).reverse().map(id => state.store.present.layers.byId[id]).map(layer => layer.pixels).reduce((a, b) => a.concat(b), []),
+    pixels: values(state.store.present.layers.ids)
+      .reverse()
+      .map(id => state.store.present.layers.byId[id])
+      .filter(layer => layer.isVisible)
+      .map(layer => layer.pixels)
+      .reduce((a, b) => a.concat(b), []),
     currentLayerId: state.layers.selectedLayerId,
     currentColor: state.colors.currentColor
   }

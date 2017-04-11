@@ -35,6 +35,17 @@ const clearLayer = layerId => {
   }
 }
 
+const TOGGLE_LAYER = Symbol('TOGGLE_LAYER')
+const toggleLayer = layerId => {
+  return {
+    type: TOGGLE_LAYER,
+    payload: layerId,
+    meta: {
+      undoable: true
+    }
+  }
+}
+
 const DELETE_LAYER = 'DELETE_LAYER'
 
 const deleteLayer = (id) => {
@@ -207,6 +218,7 @@ const drawPreviewEllipse = ({ fromIndex, toIndex }) => {
 export const actions = {
  reorderLayers,
  createLayer,
+ toggleLayer,
  deleteLayer,
  updateLayerName,
  updateLayerOrder,
@@ -230,10 +242,10 @@ const layerModel = {
 
 let defaultState = addModelToStore(layerModel, {})
 
-const previewLayer = { id: 'preview-layer', name: 'preview', pixels: Array.from({ length: 16 * 16 }), width: 16, height: 16, scale: 32 }
+const previewLayer = { id: 'preview-layer', name: 'preview', isVisible: true, pixels: Array.from({ length: 16 * 16 }), width: 16, height: 16, scale: 32 }
 defaultState = addEntityToStore(layerModel, previewLayer, defaultState)
 
-defaultState = addEntityToStore(layerModel, { id: 'default-layer', name: 'Untitled layer', pixels: Array.from({ length: 16 * 16 }), width: 16, height: 16, scale: 32 }, defaultState)
+defaultState = addEntityToStore(layerModel, { id: 'default-layer', name: 'Untitled layer', isVisible: true, pixels: Array.from({ length: 16 * 16 }), width: 16, height: 16, scale: 32 }, defaultState)
 
 export default handleActions({
   [REORDER_LAYERS]: (state, { payload }) => {
@@ -245,8 +257,13 @@ export default handleActions({
     }
   },
   [CREATE_LAYER]: (state, { payload }) => {
-    const newLayer = { id: uuid.v4(), name: 'Untitled layer', pixels: Array.from({ length: 16 * 16 }), width: 16, height: 16, scale: 32 }
+    const newLayer = { id: uuid.v4(), name: `Untitled layer ${state.layers.ids.length}`, isVisible: true, pixels: Array.from({ length: 16 * 16 }), width: 16, height: 16, scale: 32 }
     return addEntityToStore(layerModel, newLayer, Object.assign({}, state))
+  },
+  [TOGGLE_LAYER]: (state, { payload }) => {
+    const layerId = payload
+    const layer = state.layers.byId[layerId]
+    return updateEntity(layerModel, layerId, { isVisible: !layer.isVisible }, Object.assign({}, state))
   },
   [DELETE_LAYER]: (state, { payload }) => {
     return removeEntityFromStore(layerModel, payload, Object.assign({}, state))
@@ -257,7 +274,7 @@ export default handleActions({
   },
   [UPDATE_LAYER_ORDER]: (state, { payload }) => {
     const nextState = Object.assign({}, state)
-    nextState.layers.ids = payload
+    nextState.layers.ids = ['preview-layer', ...payload]
     return nextState
   },
   [FILL]: (state, { payload }) => {

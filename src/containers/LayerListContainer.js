@@ -4,31 +4,26 @@ import LayerList from '../components/LayerList'
 import ColorPicker from './ColorPickerContainer'
 import Button from '../components/Button'
 import Icon from '../components/Icon'
-import { actions as layerActions } from '../redux/modules/layers'
 import { actions as storeActions } from '../redux/modules/store'
 import { actions as toolsActions } from '../redux/modules/tools'
 import { SortableContainer, SortableElement, arrayMove } from 'react-sortable-hoc'
-import renderListItem from './layerListRenderer'
+import LayerListItem from './LayerListItemContainer'
 
 const SortableLayerList = SortableContainer(LayerList)
-const SortableLayerListItem = SortableElement(LayerList.Item)
-
-console.log('SortableLayerList', SortableLayerList)
+const SortableLayerListItem = SortableElement(LayerListItem)
 
 const mapStateToProps = (state) => {
   return {
     layers: state.store.present.layers.ids.map(id => state.store.present.layers.byId[id]),
-    selectedLayerId: state.layers.selectedLayerId,
-    selectedTool: state.tools.selected
+    selectedTool: state.tools.selected,
+    selectedLayerId: state.layers.selectedLayerId
   }
 }
 
 const mapDispatchToProps = (dispatch) => {
   return {
-    onClickLayer: (id) => () => dispatch(layerActions.selectLayer(id)),
     createLayer: () => dispatch(storeActions.createLayer()),
     deleteLayer: (id) => dispatch(storeActions.deleteLayer(id)),
-    updateLayerName: (id) => ({ name }) => dispatch(storeActions.updateLayerName(id, name)),
     updateLayerOrder: (ids) => dispatch(storeActions.updateLayerOrder(ids)),
     selectPenTool: () => dispatch(toolsActions.selectTool('pen')),
     selectEraser: () => dispatch(toolsActions.selectTool('eraser')),
@@ -65,24 +60,16 @@ class LayerListContainer extends Component {
 
   updateOrder = ({ oldIndex, newIndex }) => {
     const { updateLayerOrder, layers } = this.props
-    const ids = arrayMove(layers, oldIndex, newIndex).map(l => l.id)
+    const ids = arrayMove(layers.filter(layer => layer.id !== 'preview-layer'), oldIndex, newIndex).map(l => l.id)
     updateLayerOrder(ids)
   }
 
   render () {
-    const { layers, onClickLayer, selectedLayerId, createLayer, updateLayerName, selectPenTool, selectEraser, selectRectangleTool, selectLineTool, selectedTool, selectFillTool, selectEllipseTool } = this.props
+    const { layers, createLayer, selectPenTool, selectEraser, selectRectangleTool, selectLineTool, selectedTool, selectFillTool, selectEllipseTool } = this.props
     return (
       <div>
         <SortableLayerList distance={10} onSortEnd={this.updateOrder}>
-          {layers.map((layer, index) => (
-            renderListItem({
-              layer,
-              index,
-              isSelected: selectedLayerId === layer.id,
-              onClick: onClickLayer(layer.id),
-              onChangeName: updateLayerName(layer.id)
-            })
-          ))}
+          {layers.filter(layer => layer.id !== 'preview-layer').map((layer, index) => <SortableLayerListItem key={layer.id} index={index} layer={layer} />)}
         </SortableLayerList>
         <div style={{ position: 'fixed', bottom: 0, right: 0 }}>
           <Button onClick={createLayer}><Icon type='add' color='white' /></Button>
