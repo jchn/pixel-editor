@@ -1,9 +1,5 @@
-// Implement higher order reducer to create an undoable state
-
 export const UNDO = Symbol('UNDO')
 export const REDO = Symbol('REDO')
-
-import { clone } from 'ramda'
 
 const undoable = (reducer, config) => {
 
@@ -36,12 +32,10 @@ const undoable = (reducer, config) => {
       default:
         const newPresent = reducer(present, action)
         if (present === newPresent) {
-          console.log('same state')
           return state
         }
 
         if (action.meta && action.meta.undoable) {
-          console.log(action.type, 'is undoable')
           return {
             past: [ ...past, present ],
             present: newPresent,

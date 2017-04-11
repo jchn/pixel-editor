@@ -197,7 +197,10 @@ const drawPreviewEllipse = ({ fromIndex, toIndex }) => {
   return dispatch => {
     dispatch(clearLayer('preview-layer'))
 
-    dispatch(drawEllipse({ fromIndex, toIndex, color: 'pink', layerId: 'preview-layer' }))
+    dispatch({
+      type: DRAW_ELLIPSE,
+      payload: { fromIndex, toIndex, color: 'pink', layerId: 'preview-layer' }
+    })
   }
 }
 
