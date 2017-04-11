@@ -17,7 +17,7 @@ console.log('SortableLayerList', SortableLayerList)
 
 const mapStateToProps = (state) => {
   return {
-    layers: state.store.layers.ids.map(id => state.store.layers.byId[id]),
+    layers: state.store.present.layers.ids.map(id => state.store.present.layers.byId[id]),
     selectedLayerId: state.layers.selectedLayerId,
     selectedTool: state.tools.selected
   }
