@@ -5,6 +5,8 @@ import Welcome from './Welcome';
 import Icon from '../components/Icon'
 import PointableGrid from '../components/PointableGrid'
 import Menu from '../components/Menu'
+import SequenceList from '../components/SequenceList'
+import Canvas from '../components/Canvas'
 
 storiesOf('Welcome', module)
   .add('to Storybook', () => (
@@ -58,3 +60,21 @@ storiesOf('Menu', module)
       </Menu.SubMenu>
     </Menu>
   ))
+
+  storiesOf('SequenceList', module)
+    .add('default', () => (
+      <SequenceList>
+        <SequenceList.Item selected>
+          <Canvas width={16} height={16} scale={8} pixels={Array.from({ length: 16 * 16 })} />
+        </SequenceList.Item>
+        <SequenceList.Item>
+          <Canvas width={16} height={16} scale={8} pixels={Array.from({ length: 16 * 16 })} />
+        </SequenceList.Item>
+        <SequenceList.Item>
+          <Canvas width={16} height={16} scale={8} pixels={Array.from({ length: 16 * 16 })} />
+        </SequenceList.Item>
+        <SequenceList.Item>
+          <Canvas width={16} height={16} scale={8} pixels={Array.from({ length: 16 * 16 })} />
+        </SequenceList.Item>
+      </SequenceList>
+    ))

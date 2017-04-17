@@ -14,17 +14,19 @@ const SortableLayerListItem = SortableElement(LayerListItem)
 
 const mapStateToProps = (state) => {
   return {
-    layers: state.store.present.layers.ids.map(id => state.store.present.layers.byId[id]),
+    layers: state.store.present.canvases.byId[state.store.present.frames.byId[state.sequencer.selectedFrameId].canvas].layers
+      .map(id => state.store.present.layers.byId[id]),
     selectedTool: state.tools.selected,
-    selectedLayerId: state.layers.selectedLayerId
+    selectedLayerId: state.layers.selectedLayerId,
+    selectedCanvasId: state.store.present.frames.byId[state.sequencer.selectedFrameId].canvas
   }
 }
 
 const mapDispatchToProps = (dispatch) => {
   return {
-    createLayer: () => dispatch(storeActions.createLayer()),
+    createLayer: canvasId => dispatch(storeActions.createLayer(canvasId)),
     deleteLayer: (id) => dispatch(storeActions.deleteLayer(id)),
-    updateLayerOrder: (ids) => dispatch(storeActions.updateLayerOrder(ids)),
+    updateLayerOrder: (canvasId, ids) => dispatch(storeActions.updateLayerOrder({canvasId, ids})),
     selectPenTool: () => dispatch(toolsActions.selectTool('pen')),
     selectEraser: () => dispatch(toolsActions.selectTool('eraser')),
     selectRectangleTool: () => dispatch(toolsActions.selectTool('rectangle')),
@@ -38,6 +40,11 @@ class LayerListContainer extends Component {
   deleteSelectedLayer = () => {
     const { selectedLayerId, deleteLayer } = this.props
     deleteLayer(selectedLayerId)
+  }
+
+  createLayer = () => {
+    const { selectedCanvasId, createLayer } = this.props
+    createLayer(selectedCanvasId)
   }
 
   onKeyup = (e) => {
@@ -59,20 +66,20 @@ class LayerListContainer extends Component {
   }
 
   updateOrder = ({ oldIndex, newIndex }) => {
-    const { updateLayerOrder, layers } = this.props
+    const { updateLayerOrder, layers, selectedCanvasId } = this.props
     const ids = arrayMove(layers.filter(layer => layer.id !== 'preview-layer'), oldIndex, newIndex).map(l => l.id)
-    updateLayerOrder(ids)
+    updateLayerOrder(selectedCanvasId, ids)
   }
 
   render () {
-    const { layers, createLayer, selectPenTool, selectEraser, selectRectangleTool, selectLineTool, selectedTool, selectFillTool, selectEllipseTool } = this.props
+    const { layers, selectPenTool, selectEraser, selectRectangleTool, selectLineTool, selectedTool, selectFillTool, selectEllipseTool } = this.props
     return (
       <div>
         <SortableLayerList distance={10} onSortEnd={this.updateOrder}>
           {layers.filter(layer => layer.id !== 'preview-layer').map((layer, index) => <SortableLayerListItem key={layer.id} index={index} layer={layer} />)}
         </SortableLayerList>
         <div style={{ position: 'fixed', bottom: 0, right: 0 }}>
-          <Button onClick={createLayer}><Icon type='add' color='white' /></Button>
+          <Button onClick={this.createLayer}><Icon type='add' color='white' /></Button>
           <Button active={selectedTool.pen} onClick={selectPenTool}><Icon type='pen' color='white' /></Button>
           <Button active={selectedTool.eraser} onClick={selectEraser}>eraser</Button>
           <Button active={selectedTool.rectangle} onClick={selectRectangleTool}>rectangle</Button>

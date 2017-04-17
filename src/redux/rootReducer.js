@@ -5,6 +5,7 @@ import colors from './modules/colors'
 import tools from './modules/tools'
 import pointer from './modules/pointer'
 import settings from './modules/settings'
+import sequencer from './modules/sequencer'
 
 import undoable from './reducer-enhancers/undoable'
 
@@ -14,5 +15,6 @@ export default combineReducers({
   colors,
   tools,
   pointer,
-  settings
+  settings,
+  sequencer
 })

@@ -1,15 +1,15 @@
 import { handleActions } from 'redux-actions'
 import { times } from 'ramda'
-import { addModelToStore, addEntityToStore, updateEntity, removeEntityFromStore } from 'schuur'
+import { addModelToStore, addEntityToStore, addRelatedEntityToEntity, updateEntity, removeEntityFromStore, hasMany, belongsTo } from 'schuur'
 import { getCoordsFromPixelIndex, getPixelIndex } from '../../utils'
 import uuid from 'uuid'
 
 const REORDER_LAYERS = 'REORDER_LAYERS'
 
-const reorderLayers = (ids) => {
+const reorderLayers = ({ canvasId, ids }) => {
   return {
     type: REORDER_LAYERS,
-    payload: ids,
+    payload: { canvasId, ids },
     meta: {
       undoable: true
     }
@@ -17,10 +17,10 @@ const reorderLayers = (ids) => {
 }
 
 const CREATE_LAYER = 'CREATE_LAYER'
-const createLayer = () => {
+const createLayer = canvasId => {
   return {
     type: CREATE_LAYER,
-    payload: null,
+    payload: canvasId,
     meta: {
       undoable: true
     }
@@ -67,6 +67,15 @@ const updateLayerOrder = (ids) => {
     meta: {
       undoable: true
     }
+  }
+}
+
+const CREATE_FRAME = Symbol('CREATE_FRAME')
+
+const createFrame = () => {
+  return {
+    type: CREATE_FRAME,
+    payload: null
   }
 }
 
@@ -222,6 +231,7 @@ export const actions = {
  deleteLayer,
  updateLayerName,
  updateLayerOrder,
+ createFrame,
  drawPixel,
  drawPreviewPixel,
  drawRectangle,
@@ -240,12 +250,37 @@ const layerModel = {
   typePlural: 'layers'
 }
 
+const canvasModel = {
+  type: 'canvas',
+  typePlural: 'canvases'
+}
+
+const frameModel = {
+  type: 'frame',
+  typePlural: 'frames'
+}
+
+Object.assign(layerModel, belongsTo(canvasModel))
+Object.assign(canvasModel, hasMany(layerModel))
+Object.assign(frameModel, belongsTo(canvasModel))
+Object.assign(canvasModel, belongsTo(frameModel))
+
 let defaultState = addModelToStore(layerModel, {})
+defaultState = addModelToStore(canvasModel, defaultState)
+defaultState = addModelToStore(frameModel, defaultState)
 
 const previewLayer = { id: 'preview-layer', name: 'preview', isVisible: true, pixels: Array.from({ length: 16 * 16 }), width: 16, height: 16, scale: 32 }
 defaultState = addEntityToStore(layerModel, previewLayer, defaultState)
 
-defaultState = addEntityToStore(layerModel, { id: 'default-layer', name: 'Untitled layer', isVisible: true, pixels: Array.from({ length: 16 * 16 }), width: 16, height: 16, scale: 32 }, defaultState)
+const defaultLayer = { id: 'default-layer', name: 'Untitled layer', isVisible: true, pixels: Array.from({ length: 16 * 16 }), width: 16, height: 16, scale: 32 }
+
+defaultState = addEntityToStore(canvasModel, { id: 'default-canvas', name: 'canvas 1' }, defaultState)
+
+defaultState = addRelatedEntityToEntity(canvasModel, 'default-canvas', layerModel, defaultLayer, defaultState)
+
+const defaultFrame = { id: 'default-frame' }
+
+defaultState = addRelatedEntityToEntity(canvasModel, 'default-canvas', frameModel, defaultFrame, defaultState)
 
 export default handleActions({
   [REORDER_LAYERS]: (state, { payload }) => {
@@ -257,8 +292,14 @@ export default handleActions({
     }
   },
   [CREATE_LAYER]: (state, { payload }) => {
+    const canvasId = payload
+    const canvas = state.canvases.byId[canvasId]
+
     const newLayer = { id: uuid.v4(), name: `Untitled layer ${state.layers.ids.length}`, isVisible: true, pixels: Array.from({ length: 16 * 16 }), width: 16, height: 16, scale: 32 }
-    return addEntityToStore(layerModel, newLayer, Object.assign({}, state))
+
+    // return addEntityToStore(layerModel, newLayer, Object.assign({}, state))
+
+    return addRelatedEntityToEntity(canvasModel, canvasId, layerModel, newLayer, state)
   },
   [TOGGLE_LAYER]: (state, { payload }) => {
     const layerId = payload
@@ -272,10 +313,19 @@ export default handleActions({
     const { id, name } = payload
     return updateEntity(layerModel, id, { name }, Object.assign({}, state))
   },
-  [UPDATE_LAYER_ORDER]: (state, { payload }) => {
-    const nextState = Object.assign({}, state)
-    nextState.layers.ids = ['preview-layer', ...payload]
-    return nextState
+  [UPDATE_LAYER_ORDER]: (state, { payload: { canvasId, ids } }) => {
+    return updateEntity(canvasModel, canvasId, { layers: ids }, state)
+  },
+  [CREATE_FRAME]: (state, { payload }) => {
+    const newFrame = { id: uuid.v4() }
+    const newCanvas = { id: uuid.v4(), name: 'new canvas' }
+    const newLayer = { id: uuid.v4(), name: 'Untitled layer', isVisible: true, pixels: Array.from({ length: 16 * 16 }), width: 16, height: 16, scale: 32 }
+
+    let newState = addEntityToStore(frameModel, newFrame, state)
+    newState = addRelatedEntityToEntity(frameModel, newFrame.id, canvasModel, newCanvas, newState)
+    newState = addRelatedEntityToEntity(canvasModel, newCanvas.id, layerModel, newLayer, newState)
+
+    return newState
   },
   [FILL]: (state, { payload }) => {
     const { color, layerId, index } = payload
