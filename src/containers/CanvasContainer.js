@@ -8,7 +8,7 @@ import PointableGrid from '../components/PointableGrid'
 
 const mapStateToProps = (state) => {
   return {
-    pixels: values(state.store.present.layers.ids)
+    pixels: [...state.store.present.canvases.byId[state.store.present.frames.byId[state.sequencer.selectedFrameId].canvas].layers, 'preview-layer']
       .reverse()
       .map(id => state.store.present.layers.byId[id])
       .filter(layer => layer.isVisible)
