@@ -3,10 +3,9 @@ import LayerListItem from './LayerListItem'
 import styled from 'styled-components'
 
 const Wrapper = styled.div`
-  border: 1px solid;
-  background-color: #282828;
-  width: 300px;
-  position: fixed;
+  border-left: 1px solid #979797;
+  background-color: #1c1a22;
+  width: 250px;
   top: 0;
   right: 0;
   height: 100%;

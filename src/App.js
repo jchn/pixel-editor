@@ -5,9 +5,17 @@ import Canvas from './containers/CanvasContainer';
 import LayerList from './containers/LayerListContainer'
 import ColorPicker from './containers/ColorPickerContainer'
 import Sequencer from './containers/Sequencer'
+import Toolbar from './containers/Toolbar'
+import styled from 'styled-components'
 import './App.css';
 
 import { REDO, UNDO } from './redux/reducer-enhancers/undoable'
+
+const Header = styled.header`
+  padding: 16px;
+  background-color: #1c1a22;
+  border: 1px solid #979797;
+`
 
 class App extends Component {
   componentDidMount () {
@@ -23,13 +31,17 @@ class App extends Component {
   render() {
     return (
       <Provider store={store}>
-        <div className="App" style={{ display: 'flex', backgroundColor: '#121212', height: '100vh', width: '100vw' }}>
-          <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', width: 'calc(100% - 200px)' }}>
-            <Canvas style={{ backgroundColor: 'white', cursor: 'crosshair', userSelect: 'none' }}
-            />
-          </div>
+        <div className="App" style={{ display: 'flex', flexDirection: 'column', backgroundColor: '#121212', height: '100vh', width: '100vw' }}>
+          <Header>
+            <Toolbar />
+          </Header>
+          <div style={{ display: 'flex', flexDirection: 'row' }}>
+            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', width: '100%', height: 'calc(100vh - 300px)', backgroundColor: '#2a2733' }}>
+              <Canvas style={{ backgroundColor: 'white', cursor: 'crosshair', userSelect: 'none' }}
+              />
+            </div>
           <LayerList />
-          <ColorPicker />
+          </div>
           <Sequencer />
         </div>
       </Provider>

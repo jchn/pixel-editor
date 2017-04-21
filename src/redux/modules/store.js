@@ -297,8 +297,6 @@ export default handleActions({
 
     const newLayer = { id: uuid.v4(), name: `Untitled layer ${state.layers.ids.length}`, isVisible: true, pixels: Array.from({ length: 16 * 16 }), width: 16, height: 16, scale: 32 }
 
-    // return addEntityToStore(layerModel, newLayer, Object.assign({}, state))
-
     return addRelatedEntityToEntity(canvasModel, canvasId, layerModel, newLayer, state)
   },
   [TOGGLE_LAYER]: (state, { payload }) => {

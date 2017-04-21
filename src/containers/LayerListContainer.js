@@ -26,13 +26,7 @@ const mapDispatchToProps = (dispatch) => {
   return {
     createLayer: canvasId => dispatch(storeActions.createLayer(canvasId)),
     deleteLayer: (id) => dispatch(storeActions.deleteLayer(id)),
-    updateLayerOrder: (canvasId, ids) => dispatch(storeActions.updateLayerOrder({canvasId, ids})),
-    selectPenTool: () => dispatch(toolsActions.selectTool('pen')),
-    selectEraser: () => dispatch(toolsActions.selectTool('eraser')),
-    selectRectangleTool: () => dispatch(toolsActions.selectTool('rectangle')),
-    selectLineTool: () => dispatch(toolsActions.selectTool('line')),
-    selectFillTool: () => dispatch(toolsActions.selectTool('fill')),
-    selectEllipseTool: () => dispatch(toolsActions.selectTool('ellipse'))
+    updateLayerOrder: (canvasId, ids) => dispatch(storeActions.updateLayerOrder({canvasId, ids}))
   }
 }
 
@@ -72,22 +66,12 @@ class LayerListContainer extends Component {
   }
 
   render () {
-    const { layers, selectPenTool, selectEraser, selectRectangleTool, selectLineTool, selectedTool, selectFillTool, selectEllipseTool } = this.props
+    const { layers } = this.props
     return (
       <div>
         <SortableLayerList distance={10} onSortEnd={this.updateOrder}>
           {layers.filter(layer => layer.id !== 'preview-layer').map((layer, index) => <SortableLayerListItem key={layer.id} index={index} layer={layer} />)}
         </SortableLayerList>
-        <div style={{ position: 'fixed', bottom: 0, right: 0 }}>
-          <Button onClick={this.createLayer}><Icon type='add' color='white' /></Button>
-          <Button active={selectedTool.pen} onClick={selectPenTool}><Icon type='pen' color='white' /></Button>
-          <Button active={selectedTool.eraser} onClick={selectEraser}>eraser</Button>
-          <Button active={selectedTool.rectangle} onClick={selectRectangleTool}>rectangle</Button>
-          <Button active={selectedTool.line} onClick={selectLineTool}>line</Button>
-          <Button active={selectedTool.fill} onClick={selectFillTool}>fill</Button>
-          <Button active={selectedTool.ellipse} onClick={selectEllipseTool}>ellipse</Button>
-          <ColorPicker />
-        </div>
       </div>
     )
   }

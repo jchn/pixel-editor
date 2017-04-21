@@ -15,7 +15,7 @@ function mapStateToProps (state) {
 
 const SequencePreview = ({ pixels }) => {
   return (
-    <Canvas pixels={pixels} width={16} height={16} scale={8} />
+    <Canvas pixels={pixels} width={16} height={16} scale={8} style={{ borderRadius: '3px' }} />
   )
 }
 

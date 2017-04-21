@@ -24,7 +24,7 @@ function mapDispatchToProps (dispatch, ownProps) {
 
 const SequenceListItemContainer = ({ selected, frame, pixels, selectFrame }) => (
   <SequenceList.Item onClick={selectFrame} selected={selected}>
-    <Canvas width={16} height={16} scale={8} pixels={pixels} />
+    <Canvas width={16} height={16} scale={8} pixels={pixels} style={{ borderRadius: '3px' }} />
   </SequenceList.Item>
 )
 

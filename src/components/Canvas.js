@@ -9,7 +9,7 @@ const getPixelIndex = (width, height, scale, x, y) => {
     return indexY * width + indexX
 }
 
-class Canvas extends React.Component {
+class Canvas extends Component {
   componentDidMount () {
     this.drawPixels()
   }
@@ -37,21 +37,22 @@ class Canvas extends React.Component {
     })
   }
 
-  render () {
-    const { width, height, scale } = this.props
+  assignCanvas = el => {
+    if (!el) return
+    this.canvas = el
+    this.ctx = el.getContext('2d')
+  }
 
-    const assignCanvas = el => {
-      if (!el) return
-      this.canvas = el
-      this.ctx = el.getContext('2d')
-    }
+  render () {
+    const { width, height, scale, pixels, onHover, style, ...props } = this.props
 
     return (
       <canvas
         width={width * scale}
         height={height * scale}
-        ref={assignCanvas}
-        style={{ backgroundColor: 'white',  userDrag: 'none', width: `${width * scale}px`, height: `${height * scale}px`, cursor: 'crosshair' }}
+        ref={this.assignCanvas}
+        style={{ backgroundColor: 'white',  userDrag: 'none', width: `${width * scale}px`, height: `${height * scale}px`, cursor: 'crosshair', ...style }}
+        {...props}
       ></canvas>
     )
   }
