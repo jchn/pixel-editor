@@ -10,6 +10,8 @@ const Input = styled.input`
   background-color: transparent;
   border: none;
   padding: 0;
+  width: 20px;
+  height: 20px;
 `
 
 class ColorPicker extends Component {

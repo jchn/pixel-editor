@@ -4,32 +4,29 @@ import LayerList from '../components/LayerList'
 import ColorPicker from './ColorPickerContainer'
 import Button from '../components/Button'
 import Icon from '../components/Icon'
-import { actions as layerActions } from '../redux/modules/layers'
 import { actions as storeActions } from '../redux/modules/store'
 import { actions as toolsActions } from '../redux/modules/tools'
 import { SortableContainer, SortableElement, arrayMove } from 'react-sortable-hoc'
-import renderListItem from './layerListRenderer'
+import LayerListItem from './LayerListItemContainer'
 
 const SortableLayerList = SortableContainer(LayerList)
-const SortableLayerListItem = SortableElement(LayerList.Item)
-
-console.log('SortableLayerList', SortableLayerList)
+const SortableLayerListItem = SortableElement(LayerListItem)
 
 const mapStateToProps = (state) => {
   return {
-    layers: state.store.layers.ids.map(id => state.store.layers.byId[id]),
-    selectedLayerId: state.layers.selectedLayerId
+    layers: state.store.present.canvases.byId[state.store.present.frames.byId[state.sequencer.selectedFrameId].canvas].layers
+      .map(id => state.store.present.layers.byId[id]),
+    selectedTool: state.tools.selected,
+    selectedLayerId: state.layers.selectedLayerId,
+    selectedCanvasId: state.store.present.frames.byId[state.sequencer.selectedFrameId].canvas
   }
 }
 
 const mapDispatchToProps = (dispatch) => {
   return {
-    onClickLayer: (id) => () => dispatch(layerActions.selectLayer(id)),
-    createLayer: () => dispatch(storeActions.createLayer()),
+    createLayer: canvasId => dispatch(storeActions.createLayer(canvasId)),
     deleteLayer: (id) => dispatch(storeActions.deleteLayer(id)),
-    updateLayerName: (id) => ({ name }) => dispatch(storeActions.updateLayerName(id, name)),
-    updateLayerOrder: (ids) => dispatch(storeActions.updateLayerOrder(ids)),
-    selectEraser: () => dispatch(toolsActions.selectTool('eraser'))
+    updateLayerOrder: (canvasId, ids) => dispatch(storeActions.updateLayerOrder({canvasId, ids}))
   }
 }
 
@@ -37,6 +34,11 @@ class LayerListContainer extends Component {
   deleteSelectedLayer = () => {
     const { selectedLayerId, deleteLayer } = this.props
     deleteLayer(selectedLayerId)
+  }
+
+  createLayer = () => {
+    const { selectedCanvasId, createLayer } = this.props
+    createLayer(selectedCanvasId)
   }
 
   onKeyup = (e) => {
@@ -58,32 +60,18 @@ class LayerListContainer extends Component {
   }
 
   updateOrder = ({ oldIndex, newIndex }) => {
-    const { updateLayerOrder, layers } = this.props
-    const ids = arrayMove(layers, oldIndex, newIndex).map(l => l.id)
-    updateLayerOrder(ids)
+    const { updateLayerOrder, layers, selectedCanvasId } = this.props
+    const ids = arrayMove(layers.filter(layer => layer.id !== 'preview-layer'), oldIndex, newIndex).map(l => l.id)
+    updateLayerOrder(selectedCanvasId, ids)
   }
 
   render () {
-    const { layers, onClickLayer, selectedLayerId, createLayer, updateLayerName, selectEraser } = this.props
+    const { layers } = this.props
     return (
       <div>
         <SortableLayerList distance={10} onSortEnd={this.updateOrder}>
-          {layers.map((layer, index) => (
-            renderListItem({
-              layer,
-              index,
-              isSelected: selectedLayerId === layer.id,
-              onClick: onClickLayer(layer.id),
-              onChangeName: updateLayerName(layer.id)
-            })
-          ))}
+          {layers.filter(layer => layer.id !== 'preview-layer').map((layer, index) => <SortableLayerListItem key={layer.id} index={index} layer={layer} />)}
         </SortableLayerList>
-        <div style={{ position: 'fixed', bottom: 0, right: 0 }}>
-          <Button onClick={createLayer}><Icon type='add' color='white' /></Button>
-          <Button active onClick={() => {}}><Icon type='pen' color='white' /></Button>
-          <Button onClick={selectEraser}>eraser</Button>
-          <ColorPicker />
-        </div>
       </div>
     )
   }

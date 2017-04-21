@@ -4,102 +4,45 @@ import store from './redux/configureStore'
 import Canvas from './containers/CanvasContainer';
 import LayerList from './containers/LayerListContainer'
 import ColorPicker from './containers/ColorPickerContainer'
+import Sequencer from './containers/Sequencer'
+import Toolbar from './containers/Toolbar'
+import styled from 'styled-components'
 import './App.css';
 
-const P = [
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0,
-  0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0,
-  0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0,
+import { REDO, UNDO } from './redux/reducer-enhancers/undoable'
 
-  0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0,
-  0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0,
-  0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0,
-  0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0,
-
-  0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0,
-  0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0,
-  0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-
-  0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-]
-
-const I = [
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-
-  0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0,
-  
-  0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0,
-  
-  0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-]
-
-const X = [
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0,
-  0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0,
-  0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0,
-  
-  0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0,
-  
-  0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0,
-  
-  0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0,
-  0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0,
-  0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-]
-
-const Pc = P.map(v => v === 1 ? 'red' : false)
-const Ic = I.map(v => v === 1 ? 'green' : false)
-const Xc = X.map(v => v === 1 ? 'yellow' : false)
-
-const layers = [
-  {name: 'P', pixels: Pc},
-  {name: 'I', pixels: Ic},
-  {name: 'X', pixels: Xc}
-]
-
-const pixels = layers.map(l => l.pixels).reduce((a, b) => a.concat(b), [])
+const Header = styled.header`
+  padding: 16px;
+  background-color: #1c1a22;
+  border: 1px solid #979797;
+`
 
 class App extends Component {
+  componentDidMount () {
+    window.document.addEventListener('keyup', function (e) {
+      switch (e.keyCode) {
+        case 90:
+          e.ctrlKey && !e.shiftKey && store.dispatch({ type: UNDO })
+          e.ctrlKey && e.shiftKey && store.dispatch({ type: REDO })
+      }
+    })
+  }
+
   render() {
     return (
       <Provider store={store}>
-        <div className="App" style={{ display: 'flex', backgroundColor: '#121212', height: '100vh', width: '100vw' }}>
-          <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', width: 'calc(100% - 200px)' }}>
-            <Canvas
-              width={16}
-              height={16}
-              scale={32}
-              pixels={[]}
-              style={{ backgroundColor: 'white', cursor: 'crosshair', userSelect: 'none' }}
-            />
-          </div>
+        <div className="App" style={{ display: 'flex', flexDirection: 'column', backgroundColor: '#121212', height: '100vh', width: '100vw' }}>
+          <Header>
+            <Toolbar />
+          </Header>
+          <div style={{ display: 'flex', flexDirection: 'row' }}>
+            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', width: '100%', height: 'calc(100vh - 300px)', backgroundColor: '#2a2733' }}>
+              <Canvas style={{ backgroundColor: 'white', cursor: 'crosshair', userSelect: 'none' }}
+              />
+            </div>
           <LayerList />
-          <ColorPicker />
+          </div>
+          <Sequencer />
         </div>
       </Provider>
     );
