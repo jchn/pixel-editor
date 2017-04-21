@@ -6,7 +6,6 @@ export default store => next => action => {
   const selectedLayerId = store.getState().layers.selectedLayerId
   const currentColor = store.getState().colors.currentColor
   const isPointerDown = store.getState().pointer.isPointerDown
-
   const fromPixelIndex = store.getState().pointer.fromPixelIndex
 
   if (!isRectangleEnabled || !selectedLayerId) return next(action)

@@ -11,7 +11,7 @@ export default store => next => action => {
 
   if (!isEllipseEnabled || !selectedLayerId) return next(action)
 
-  // handle all rectangle related actions
+  // handle all ellipse related actions
   if (action.type === UPDATE_CURRENT_PIXEL_INDEX && isPointerDown) {
     const newAction = storeActions.drawPreviewEllipse({ fromIndex: fromPixelIndex, toIndex: action.payload })
     store.dispatch(newAction)

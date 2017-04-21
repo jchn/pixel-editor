@@ -2,6 +2,8 @@ import { PLAY, actions as sequencerActions } from '../modules/sequencer'
 
 export default store => next => action => {
 
+  next(action)
+
   if (action.type === PLAY) {
     // Start playback
     let time = null
@@ -28,6 +30,4 @@ export default store => next => action => {
 
     update()
   }
-
-  return next(action)
 }

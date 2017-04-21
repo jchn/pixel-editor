@@ -8,7 +8,7 @@ import PointableGrid from '../components/PointableGrid'
 
 const mapStateToProps = (state) => {
   return {
-    pixels: [...state.store.present.canvases.byId[state.store.present.frames.byId[state.sequencer.selectedFrameId].canvas].layers, 'preview-layer']
+    pixels: ['preview-layer', ...state.store.present.canvases.byId[state.store.present.frames.byId[state.sequencer.selectedFrameId].canvas].layers]
       .reverse()
       .map(id => state.store.present.layers.byId[id])
       .filter(layer => layer.isVisible)
@@ -21,8 +21,6 @@ const mapStateToProps = (state) => {
 
 const mapDispatchToProps = (dispatch) => {
   return {
-    draw: (layerId, color) => (e, pixelIndex) => dispatch(storeActions.drawPixel({ color, layerId, index: pixelIndex })),
-    drawPreviewPixel: pixelIndex => dispatch(storeActions.drawPreviewPixel({ index: pixelIndex })),
     updateCurrentPixelIndex: (e, pixelIndex) => dispatch(pointerActions.updateCurrentPixelIndex(pixelIndex)),
     setPointerDown: isPointerDown => (e, pixelIndex) => dispatch(pointerActions.setPointerDown({isPointerDown, pixelIndex}))
   }
@@ -30,7 +28,7 @@ const mapDispatchToProps = (dispatch) => {
 
 class CanvasContainer extends Component {
   render () {
-    const { pixels, draw, drawPreviewPixel, currentLayerId, currentColor, updateCurrentPixelIndex, setPointerDown, ...props } = this.props
+    const { pixels, updateCurrentPixelIndex, setPointerDown, ...props } = this.props
     return (
       <PointableGrid
         width={16}
@@ -46,7 +44,6 @@ class CanvasContainer extends Component {
           height={16}
           scale={32}
           pixels={pixels}
-          onHover={drawPreviewPixel}
           {...props} />
         </PointableGrid>
     )
